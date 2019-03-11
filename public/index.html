@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script   src="https://code.jquery.com/jquery-3.3.1.min.js"   integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   crossorigin="anonymous"></script>
+    <title>Document</title>
+</head>
+<body>
+
+    <input class="quantity" placeholder="quantity">
+   <div id="products-container">
+      
+   </div> 
+<br><br>
+   <div id="message">
+
+    </div>
+
+</body>
+</html>
+<script>
+
+    $.get("/products", function(data){
+       // console.log(data)
+        //Get one piece of data and inject into DOM
+        for (let i = 0; i<data.length; i++){
+            console.log(data[i].product_name)
+            $("#products-container").append(`
+                ${data[i].product_name}
+                price: $${data[i].price}
+                quantity: ${data[i].stock_quantity}
+                <button class="purchase" data-id="${data[i].id}">Purchase</button>
+                <br>`)
+        }
+    })
+
+
+    $(document).on("click", ".purchase", function(){
+        var id = $(this).attr('data-id')
+        var quantity =  $(".quantity").val()
+        console.log(id)
+        console.log(quantity)
+        $.get(`/products/${id}`, function(data){
+            console.log(data);
+            
+            if(quantity <= data.stock_quantity) {
+                
+                var newQuantity = data.stock_quantity - quantity
+                var total = quantity * data.price
+                $.post(`/products/update`, {
+                    quantity:newQuantity, id:id
+                } , function(data){
+                    console.log(data);
+                    setTimeout(function(){
+                        location.reload()
+                    }, 3000)
+                    
+                    $("#message").html(`Order Confirmed! Your order has been placed. The total was $${total}`)
+                })
+            }
+            else{
+                $("#message").html("Not enough in stock. Insufficient Quantity. Sorry!")
+            }
+        })
+    })
+
+
+
+
+</script>
