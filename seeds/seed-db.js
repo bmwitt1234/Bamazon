@@ -60,8 +60,13 @@ const items = [
         department_name: "Cars",
         price: 29000,
         stock_quantity: 70
-    },
+    }
+];
 
-
-
-]
+db.sequelize.sync({force: true}).then(function() {
+    db.Product.bulkCreate(items).then(function(rows) {
+        console.log('\n\nINSERTED\n\n');
+    }).catch(function(err) {
+        console.log('\n\nError:', err);
+    });
+});
